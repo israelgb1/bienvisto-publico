@@ -2,6 +2,8 @@
 // llena los marcadores {{clave}} con los valores de Ajustes del panel (precio, comisión, promoción, plazos).
 // Si el panel no responde, usa los valores de respaldo de abajo para que el sitio nunca se rompa.
 
+import { responderAyuda } from "./ayuda.js";
+
 const RESPALDO = {
   precio_display: 350, comision_display: 150, promo_n: 3, promo_precio: 900, prueba_minutos: 30,
   recibo_min: 5, horas: 72, tope_nuevo: 600, tope_confianza: 2000, lim_rep: 2,
@@ -9,26 +11,34 @@ const RESPALDO = {
 const URL_CONFIG = "https://vendedores.bienvisto.com.mx/api/publico/config";
 const VIGENCIA_MS = 60 * 1000;
 
-let memoria = { hasta: 0, valores: null };
+let memoria = { hasta: 0, valores: null, vivo: false };
 
-async function leerValores(env) {
-  if (memoria.valores && Date.now() < memoria.hasta) return memoria.valores;
+// Devuelve los valores y si vienen del panel (vivo) o son los de respaldo.
+async function leerValoresEstado(env) {
+  if (memoria.valores && Date.now() < memoria.hasta) return { valores: memoria.valores, vivo: memoria.vivo };
   const valores = { ...RESPALDO };
+  let vivo = false;
   try {
     const peticion = new Request(URL_CONFIG, { headers: { Accept: "application/json" } });
     const res = env.API ? await env.API.fetch(peticion) : await fetch(peticion);
     if (res.ok) {
       const j = await res.json();
+      let leidos = 0;
       for (const k of Object.keys(RESPALDO)) {
         const n = Number(j[k]);
-        if (Number.isFinite(n) && n >= 0) valores[k] = n;
+        if (Number.isFinite(n) && n >= 0) { valores[k] = n; leidos += 1; }
       }
+      vivo = leidos === Object.keys(RESPALDO).length;
     }
   } catch (e) {
     console.log("valores del panel no disponibles: " + (e && e.message));
   }
-  memoria = { hasta: Date.now() + VIGENCIA_MS, valores };
-  return valores;
+  memoria = { hasta: Date.now() + (vivo ? VIGENCIA_MS : 10 * 1000), valores, vivo };
+  return { valores, vivo };
+}
+
+async function leerValores(env) {
+  return (await leerValoresEstado(env)).valores;
 }
 
 const mxn = (n) => "$" + Number(n).toLocaleString("es-MX", { maximumFractionDigits: 2 });
@@ -67,6 +77,12 @@ export function llenar(html, t) {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/ayuda/manual")) {
+      const { valores, vivo } = await leerValoresEstado(env);
+      const r = await responderAyuda(request, env, url, { valores, vivo, textos });
+      if (r) return r;
+    }
     const res = await env.ASSETS.fetch(request);
     const tipo = res.headers.get("Content-Type") || "";
     if (!tipo.includes("text/html") || request.method === "HEAD") return res;
