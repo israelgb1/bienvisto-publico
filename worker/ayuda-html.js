@@ -140,7 +140,7 @@ function tabla(b) {
 }
 
 function calc(v, t) {
-  return `<div class="mv-calc" id="mv-calc"><b class="t">Calcula una venta</b><p>¿Cuántos displays vendes al mismo cliente en la misma venta? La promoción se aplica sola.</p><div class="ctl"><button type="button" id="mc-m" aria-label="Quitar un display">−</button><output class="n" id="mc-n" aria-live="polite">1</output><button type="button" id="mc-p" aria-label="Agregar un display">+</button></div><div class="res"><div><small>El cliente paga</small><strong id="mc-pago">${esc(t.precio)}</strong></div><div class="g"><small>Tú retienes</small><strong id="mc-com">${esc(t.comision)}</strong></div><div><small>Entregas a Bien Visto</small><strong id="mc-ent">${esc(t.entrega)}</strong></div></div></div>`;
+  return `<div class="mv-calc" id="mv-calc"><b class="t">Calcula una venta</b><p>¿Cuántos displays vendes al mismo cliente en la misma venta? La promoción se aplica sola.</p><div class="ctl"><button type="button" id="mc-m" aria-label="Quitar un display">−</button><output class="n" id="mc-n" aria-live="polite">1</output><button type="button" id="mc-p" aria-label="Agregar un display">+</button></div><div class="res"><div><small>El cliente paga</small><strong id="mc-pago">${esc(t.precio)}</strong></div><div class="g"><small>Tu comisión</small><strong id="mc-com">${esc(t.comision)}</strong></div><div><small>Entregas a Bien Visto</small><strong id="mc-ent">${esc(t.entrega)}</strong></div></div></div>`;
 }
 
 function bloque(b, v, t) {
