@@ -1,0 +1,52 @@
+{
+  "Verde Visto": {
+    "hex": "#0E6B5C",
+    "rgb": "14 107 92",
+    "rol": "primario"
+  },
+  "Ámbar Reseña": {
+    "hex": "#F2A71B",
+    "rgb": "242 167 27",
+    "rol": "acento"
+  },
+  "Tinta": {
+    "hex": "#12302B",
+    "rgb": "18 48 43",
+    "rol": "texto"
+  },
+  "Crema": {
+    "hex": "#FBF6EC",
+    "rgb": "251 246 236",
+    "rol": "fondo"
+  },
+  "Menta": {
+    "hex": "#E7F0EC",
+    "rgb": "231 240 236",
+    "rol": "fondo alterno"
+  },
+  "Ámbar texto": {
+    "hex": "#8A5A00",
+    "rgb": "138 90 0",
+    "rol": "ámbar para texto chico"
+  },
+  "Tinta suave": {
+    "hex": "#4A5F59",
+    "rgb": "74 95 89",
+    "rol": "texto secundario"
+  },
+  "Borde fuerte": {
+    "hex": "#6B897E",
+    "rgb": "107 137 126",
+    "rol": "bordes de controles"
+  },
+  "Borde": {
+    "hex": "#CFDDD6",
+    "rgb": "207 221 214",
+    "rol": "divisores"
+  },
+  "Error": {
+    "hex": "#B3261E",
+    "rgb": "179 38 30",
+    "rol": "errores"
+  }
+}
