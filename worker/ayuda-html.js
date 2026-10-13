@@ -4,6 +4,32 @@ import { FRASE_CASILLA } from "./ayuda-contenido.js";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const md = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
 
+// Términos del glosario que se despliegan como nota dentro del texto (primera aparición por sección).
+const ALIAS = { "Display": "displays?", "Folio": "folios?", "Ficha": "fichas?", "Prueba": "prueba", "Activación": "activaci[oó]n|activaciones", "Comisión": "comisi[oó]n|comisiones", "Saldo por entregar": "saldo por entregar", "Tope": "topes?", "Corte": "cortes?", "Referencia de la venta": "referencia de la venta", "Adeudo": "adeudos?", "Nivel Nuevo / De confianza": "nivel (?:nuevo|de confianza)", "Resúmenes": "res[uú]menes" };
+let GL = null;
+let usados = null;
+function glInit(secciones) {
+  const g = secciones.find((x) => x.id === "glosario");
+  const items = g ? g.bloques.flatMap((b) => b.items || []) : [];
+  GL = items.filter(([k]) => ALIAS[k]).map(([k, d]) => ({ k, d, re: new RegExp("(?<![\\p{L}\\d])(" + ALIAS[k] + ")(?![\\p{L}\\d])", "iu") }));
+}
+const mdg = (s) => {
+  const h = md(s);
+  if (!GL || !usados) return h;
+  return h.split(/(<[^>]+>)/).map((part) => {
+    if (part.startsWith("<")) return part;
+    for (const g of GL) {
+      if (usados.has(g.k)) continue;
+      const m = g.re.exec(part);
+      if (!m) continue;
+      usados.add(g.k);
+      const i = m.index, w = m[0];
+      return part.slice(0, i) + `<span class="mv-nw"><button type="button" class="mv-n" aria-expanded="false">${w}</button><span class="mv-nt" role="note" hidden><b>${esc(g.k)}.</b> ${esc(g.d)}</span></span>` + part.slice(i + w.length);
+    }
+    return part;
+  }).join("");
+};
+
 const CSS = `
 .mv{--mv-card:rgba(255,255,255,.05);--mv-line:rgba(255,255,255,.12)}
 .mv-hero{padding:56px 0 28px}
@@ -82,6 +108,8 @@ details.mv-q p{padding:0 18px 16px;color:#cfe3dc}
 .mv-chk{list-style:none;padding:0!important;display:grid;gap:10px}
 .mv-chk label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--mv-line);border-radius:14px;background:var(--mv-card);cursor:pointer}
 .mv-chk input{flex:none;width:22px;height:22px;margin-top:2px;accent-color:var(--mint)}
+.mv-n{all:unset;cursor:pointer;color:var(--mint2);border-bottom:1.5px dotted var(--mint2);font:inherit}.mv-n:hover,.mv-n[aria-expanded=true]{color:#fff;border-bottom-style:solid}.mv-n:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.mv-nw{position:relative}.mv-nt{position:absolute;left:0;top:calc(100% + 6px);z-index:20;width:min(320px,calc(100vw - 32px));padding:10px 14px;border-left:3px solid var(--mint);background:#0d2a24;box-shadow:0 8px 24px rgba(0,0,0,.45);border-radius:0 12px 12px 0;font-size:15px;line-height:1.45;color:#cfe3dc;font-weight:400;text-align:left}.mv-nt[hidden]{display:none}.mv-nt b{font:700 15px/1.45 var(--fb);color:#fff;display:inline}
 .mv-gl{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .mv-gl div{border:1px solid var(--mv-line);border-radius:16px;padding:14px 16px;background:var(--mv-card)}
 .mv-gl dt{font:700 18px/1.2 var(--fd);color:#fff}.mv-gl dd{margin:4px 0 0;color:#cfe3dc;font-size:16px}
@@ -145,19 +173,19 @@ function calc(v, t) {
 
 function bloque(b, v, t) {
   switch (b.t) {
-    case "p": return `<p>${md(b.x)}</p>`;
+    case "p": return `<p>${mdg(b.x)}</p>`;
     case "h3": return `<h3>${esc(b.x)}</h3>`;
-    case "ul": return `<ul>${b.items.map((i) => `<li>${md(i)}</li>`).join("")}</ul>`;
-    case "ol": return `<ol>${b.items.map((i) => `<li>${md(i)}</li>`).join("")}</ol>`;
+    case "ul": return `<ul>${b.items.map((i) => `<li>${mdg(i)}</li>`).join("")}</ul>`;
+    case "ol": return `<ol>${b.items.map((i) => `<li>${mdg(i)}</li>`).join("")}</ol>`;
     case "tabla": return tabla(b);
-    case "aviso": return `<div class="mv-av ${b.tipo}"><b class="t">${esc(b.titulo)}</b><p>${md(b.x)}</p></div>`;
+    case "aviso": return `<div class="mv-av ${b.tipo}"><b class="t">${esc(b.titulo)}</b><p>${mdg(b.x)}</p></div>`;
     case "flujo": return `<div class="mv-flujo"><b class="t">${esc(b.titulo)}</b><ol>${b.pasos.map((p) => `<li><span>${esc(p)}</span></li>`).join("")}</ol></div>`;
     case "check": return `<ul class="mv-chk">${b.items.map((i, k) => `<li><label><input type="checkbox" data-k="${k}"><span>${md(i)}</span></label></li>`).join("")}</ul>`;
-    case "faq": return b.items.map(([q, a]) => `<details class="mv-q"><summary>${esc(q)}</summary><p>${md(a)}</p></details>`).join("");
+    case "faq": return b.items.map(([q, a]) => `<details class="mv-q"><summary>${esc(q)}</summary><p>${mdg(a)}</p></details>`).join("");
     case "glosario": return `<dl class="mv-gl">${b.items.map(([k, d]) => `<div><dt>${esc(k)}</dt><dd>${md(d)}</dd></div>`).join("")}</dl>`;
     case "calc": return calc(v, t);
     case "pasos":
-      return `<ol class="mv-pasos">${b.items.map((p, i) => `<li class="mv-paso"><div class="tx"><h3><i>${i + 1}</i>${esc(p.titulo)}</h3><p>${md(p.x)}</p>${p.nota ? `<p class="nota">${md(p.nota)}</p>` : ""}${p.dile ? `<div class="mv-dile"><b>DILE AL CLIENTE</b>${md(p.dile)}</div>` : ""}</div>${mock(p.mock, v, t)}</li>`).join("")}</ol>`;
+      return `<ol class="mv-pasos">${b.items.map((p, i) => `<li class="mv-paso"><div class="tx"><h3><i>${i + 1}</i>${esc(p.titulo)}</h3><p>${mdg(p.x)}</p>${p.nota ? `<p class="nota">${mdg(p.nota)}</p>` : ""}${p.dile ? `<div class="mv-dile"><b>DILE AL CLIENTE</b>${md(p.dile)}</div>` : ""}</div>${mock(p.mock, v, t)}</li>`).join("")}</ol>`;
     default: return "";
   }
 }
@@ -171,13 +199,15 @@ var m=document.getElementById("mc-m"),p=document.getElementById("mc-p");
 if(m)m.addEventListener("click",function(){if(n>1){n--;pinta()}});
 if(p)p.addEventListener("click",function(){if(n<50){n++;pinta()}});
 try{var K="bv_manual_check",g=JSON.parse(localStorage.getItem(K)||"{}");document.querySelectorAll(".mv-chk input").forEach(function(c){c.checked=!!g[c.dataset.k];c.addEventListener("change",function(){g[c.dataset.k]=c.checked;try{localStorage.setItem(K,JSON.stringify(g))}catch(e){}})})}catch(e){}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".mv-n");if(!b){document.querySelectorAll(".mv-nt:not([hidden])").forEach(function(x){x.setAttribute("hidden","");x.previousElementSibling.setAttribute("aria-expanded","false")});return}var t=b.nextElementSibling;if(!t)return;var o=t.hasAttribute("hidden");document.querySelectorAll(".mv-nt:not([hidden])").forEach(function(x){x.setAttribute("hidden","");x.previousElementSibling.setAttribute("aria-expanded","false")});if(o){t.removeAttribute("hidden");t.style.left="0";var r=t.getBoundingClientRect(),W=document.documentElement.clientWidth;if(r.right>W-16)t.style.left=(W-16-r.right)+"px"}else t.setAttribute("hidden","");b.setAttribute("aria-expanded",o?"true":"false")});
 var links=[].slice.call(document.querySelectorAll(".mv-toc a"));
 if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.removeAttribute("aria-current")});var a=document.querySelector('.mv-toc a[href="#'+e.target.id+'"]');if(a){a.setAttribute("aria-current","true");var box=a.parentNode.parentNode;box.scrollTo({left:a.offsetLeft-20,behavior:"smooth"})}}})},{rootMargin:"-30% 0px -60% 0px"});document.querySelectorAll(".mv-sec").forEach(function(s){io.observe(s)})}
 })();`;
 
 export function htmlManual(secciones, meta, v, t) {
   const toc = secciones.map((s) => `<li><a href="#${s.id}">${esc(s.titulo)}</a></li>`).join("");
-  const cuerpo = secciones.map((s) => `<section class="mv-sec" id="${s.id}"><h2>${esc(s.titulo)}</h2>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ""}<div class="mv-b">${s.bloques.map((b) => bloque(b, v, t)).join("")}</div></section>`).join("");
+  glInit(secciones);
+  const cuerpo = secciones.map((s) => { usados = new Set(); return `<section class="mv-sec" id="${s.id}"><h2>${esc(s.titulo)}</h2>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ""}<div class="mv-b">${s.bloques.map((b) => bloque(b, v, t)).join("")}</div></section>`; }).join("");
   const script = SCRIPT.replace("__P__", v.precio_display).replace("__C__", v.comision_display).replace("__N__", Math.max(1, v.promo_n)).replace("__PP__", v.promo_precio);
   return `<style>${CSS}</style><div class="mv"><section class="mv-hero"><div class="in"><p class="crumb"><a href="/vendedores">Vendedores</a> / Manual</p><h1>Manual del vendedor</h1><p class="lede">Cómo vender, cobrar y entregar con Bien Visto, paso a paso y con los importes de hoy.</p><div class="mv-acc"><a class="btn" href="/ayuda/manual.pdf" download="Manual-del-vendedor-Bien-Visto.pdf">Descargar PDF</a><a class="btn gh" href="https://wa.me/522201435851?text=${encodeURIComponent("Hola, soy vendedor de Bien Visto y necesito ayuda con mi panel.")}" target="_blank" rel="noopener">Escribir a soporte</a></div><p class="mv-vig">Importes vigentes al ${esc(meta.fecha.replace(/\.$/, ""))}. Se actualizan solos.</p>${meta.vivo ? "" : `<p class="mv-warn"><strong>No pudimos leer los importes actuales.</strong> Los que ves son de respaldo y pueden no ser los vigentes. Confirma el precio y tu comisión en la app.</p>`}</div></section><nav class="mv-toc" aria-label="Secciones del manual"><ul>${toc}</ul></nav><div class="in">${cuerpo}</div></div><script>${script}</script>`;
 }
