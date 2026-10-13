@@ -86,23 +86,26 @@ var SIN=[
  ["entrar sesion cuenta acceso contrasena","cuenta"]
 ];
 function norm(s){return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
-function stem(w){if(w.length<4)return w;for(var i=0;i<2;i++){var m=w.replace(/(ando|iendo|ado|ido|aron|ar|er|ir|ion|es|s|a|o|e)$/,"");if(m.length>=3)w=m}return w.slice(0,5)}
+function stem(w){if(w.length<4)return w;var m=w.replace(/(es|s)$/,"");if(m.length>=4)w=m;m=w.replace(/(ando|iendo|ado|ido|aron|ar|er|ir|ion|a|o|e)$/,"");if(m.length>=3)w=m;return w.slice(0,5)}
 function toks(s){return norm(s).split(/[^a-z0-9ñ]+/).filter(function(w){return w&&STOP.indexOf(w)<0&&(w.length>2||/^\d+$/.test(w))}).map(stem)}
 var SY=SIN.map(function(g){return{k:g[0].split(" ").map(stem),v:toks(g[1])}});
 var D=IDX.map(function(e,i){var tt=toks(e.t),bt=toks(e.x),tf={};bt.concat(tt).forEach(function(w){tf[w]=(tf[w]||0)+1});return{i:i,e:e,tt:tt,tf:tf,len:bt.length+tt.length}});
 var df={},avg=0;D.forEach(function(d){avg+=d.len;for(var w in d.tf)df[w]=(df[w]||0)+1});avg/=D.length||1;
+var P4={};Object.keys(df).forEach(function(w){if(w.length>=4){var k=w.slice(0,4);(P4[k]=P4[k]||[]).push(w)}});
+function ed1(a,b){if(Math.abs(a.length-b.length)>1)return false;var i=0,j=0,e=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue}if(++e>1)return false;if(a.length>b.length)i++;else if(a.length<b.length)j++;else{i++;j++}}return e+(a.length-i)+(b.length-j)<=1}
 function idf(w){var n=df[w]||0;return Math.log(1+(D.length-n+.5)/(n+.5))}
 function buscar(txt){
  var qs=toks(txt);if(!qs.length)return[];
  var W={};qs.forEach(function(w){W[w]=1});
  SY.forEach(function(g){if(qs.some(function(w){return g.k.indexOf(w)>=0})){g.v.forEach(function(w){if(!W[w])W[w]=.45})}});
+ qs.forEach(function(w){if(w.length>=4){(P4[w.slice(0,4)]||[]).forEach(function(v){if(!W[v])W[v]=.3})}if(!df[w]&&w.length>=5){Object.keys(df).forEach(function(v){if(!W[v]&&ed1(w,v))W[v]=.6})}});
  var res=[];
  D.forEach(function(d){var s=0,hit=0;
   for(var w in W){var t=d.tf[w];if(!t)continue;var inT=d.tt.indexOf(w)>=0;
    var bm=t*2.2/(t+1.2*(.4+.6*d.len/avg));s+=W[w]*idf(w)*(bm+(inT?1.6:0));if(W[w]===1)hit++}
   if(s>0){if(d.e.k==="faq")s*=1.4;else if(d.e.k==="gl")s*=.85;res.push({d:d,s:s,c:hit/qs.length})}});
  res.sort(function(a,b){return b.s-a.s});
- if(!res.length||res[0].c<.34)return[];
+ if(!res.length||res[0].c<.25)return[];
  return res.slice(0,12);
 }
 function corta(x,n){if(x.length<=n)return x;var c=x.slice(0,n),p=Math.max(c.lastIndexOf(". "),c.lastIndexOf("\n"));return(p>n*.5?c.slice(0,p+1):c.replace(/\s+\S*$/,"")+"…")}
