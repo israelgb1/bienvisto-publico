@@ -1,0 +1,17 @@
+// Sitio público bienvisto.com.mx. Los archivos del sitio están en la raíz del repo;
+// worker/index.js llena en cada página los valores que se cambian en Ajustes del panel.
+{
+  "name": "bienvisto-publico",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  // El worker de la API entrega los valores públicos de Ajustes.
+  "services": [{ "binding": "API", "service": "bienvisto-api" }],
+  "observability": { "enabled": true }
+}
