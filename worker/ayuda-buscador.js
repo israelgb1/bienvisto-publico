@@ -69,7 +69,7 @@ var SIN=[
  ["deber debo deuda adeudo multa pena castigo","adeudo pena plazo"],
  ["roto rota danado danada descompone descompuesto falla falla malo defectuoso","garantia reposicion descompone"],
  ["perdi perder perdido robo robaron robado extravio","perdida danan costo"],
- ["precio costo cuesta vale cuanto","precio"],
+ ["precio costo costos cuesta vale cuanto gasto gastos gastar","precio costo pena"],
  ["descuento rebaja regalar regalo gratis","descuento precio"],
  ["factura rfc cfdi fiscal","factura"],
  ["nfc qr escanear escaneo celular telefono","nfc qr escanear"],
@@ -102,8 +102,8 @@ function buscar(txt){
  var res=[];
  D.forEach(function(d){var s=0,hit=0;
   for(var w in W){var t=d.tf[w];if(!t)continue;var inT=d.tt.indexOf(w)>=0;
-   var bm=t*2.2/(t+1.2*(.4+.6*d.len/avg));s+=W[w]*idf(w)*(bm+(inT?1.6:0));if(W[w]===1)hit++}
-  if(s>0){if(d.e.k==="faq")s*=1.4;else if(d.e.k==="gl")s*=.85;res.push({d:d,s:s,c:hit/qs.length})}});
+   var bm=t*2.2/(t+1.2*(.4+.6*d.len/avg));s+=W[w]*idf(w)*(bm+(inT?1.6:0));if(W[w]>=.45)hit++}
+  if(s>0){if(d.e.k==="faq")s*=1.4;else if(d.e.k==="gl")s*=.85;res.push({d:d,s:s,c:Math.min(1,hit/qs.length)})}});
  res.sort(function(a,b){return b.s-a.s});
  if(!res.length||res[0].c<.25)return[];
  return res.slice(0,12);
@@ -123,8 +123,8 @@ function pinta(txt){
  var s=el("p","mv-mas");s.appendChild(document.createTextNode("¿Sigue la duda? "));var w=el("a",null,"Escribe a soporte");w.href="https://wa.me/522201435851?text="+encodeURIComponent("Hola, soy vendedor de Bien Visto. Mi duda: "+txt);w.target="_blank";w.rel="noopener";w.style.cssText="color:var(--mint2);font-weight:600";s.appendChild(w);R.appendChild(s)
 }
 var tm;
-f.addEventListener("submit",function(ev){ev.preventDefault();pinta(q.value)});
+f.addEventListener("submit",function(ev){ev.preventDefault();clearTimeout(tm);pinta(q.value);q.blur();setTimeout(function(){R.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"center"})},120)});
 q.addEventListener("input",function(){clearTimeout(tm);tm=setTimeout(function(){pinta(q.value)},300)});
 q.addEventListener("keydown",function(ev){if(ev.key==="Escape"){q.value="";R.textContent=""}});
-document.querySelectorAll(".mv-sug button").forEach(function(b){b.addEventListener("click",function(){q.value=b.dataset.q;pinta(q.value);q.focus()})});
+document.querySelectorAll(".mv-sug button").forEach(function(b){b.addEventListener("click",function(){q.value=b.dataset.q;pinta(q.value);R.scrollIntoView({block:"center"})})});
 })();`;
