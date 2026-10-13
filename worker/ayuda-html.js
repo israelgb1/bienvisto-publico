@@ -79,17 +79,17 @@ const CSS = `
 .mv-dile{background:rgba(63,194,165,.1);border-radius:14px;padding:12px 14px;font-size:16px}
 .mv-dile b{display:block;font-size:13px;letter-spacing:.06em;color:var(--mint2);margin-bottom:2px}
 .mv-phone{margin:0;justify-self:center;width:230px;border-radius:30px;padding:9px;background:#0b1f1a;border:2px solid #29423b;box-shadow:0 18px 40px rgba(0,0,0,.35)}
-.mv-scr{background:#FBF6EC;color:#12302B;border-radius:22px;padding:16px 14px 16px;min-height:300px;display:grid;gap:9px;align-content:start;font:500 12.5px/1.35 var(--fb)}
-.mv-scr b{color:#12302B}
+.mv-scr{overflow:hidden;background:#FBF6EC;color:#12302B;border-radius:22px;padding:16px 14px 16px;min-height:300px;display:grid;gap:9px;align-content:start;font:500 12.5px/1.35 var(--fb)}
+.mv-scr>*{min-width:0;box-sizing:border-box}.mv-scr b{color:#12302B}
 .mv-scr .mt{font:800 17px/1.1 var(--fd);color:#0E6B5C}
 .mv-scr .ms{font-size:11.5px;color:#4d6a62}
 .mv-scr .mi{border:1.5px solid #cdd9d4;background:#fff;border-radius:10px;padding:8px 10px;font-size:12.5px}
 .mv-scr .mi small{display:block;color:#6a8179;font-size:10.5px}
 .mv-scr .mb{border-radius:999px;padding:9px 10px;text-align:center;font-weight:700;background:#0E6B5C;color:#fff;font-size:12.5px}
 .mv-scr .mb.a{background:#F2A71B;color:#12302B}.mv-scr .mb.s{background:transparent;border:1.5px solid #0E6B5C;color:#0E6B5C}
-.mv-scr .mr{border:1.5px solid #cdd9d4;background:#fff;border-radius:10px;padding:8px 10px}
-.mv-scr .mr.on{border-color:#0E6B5C;background:#E7F0EC}
-.mv-scr .mr small{display:block;color:#6a8179;font-size:10.5px}
+.mv-scr .mrw{border:1.5px solid #cdd9d4;background:#fff;border-radius:10px;padding:8px 10px}
+.mv-scr .mrw.on{border-color:#0E6B5C;background:#E7F0EC}
+.mv-scr .mrw small{display:block;color:#6a8179;font-size:10.5px}
 .mv-scr .mchip{justify-self:start;background:#FCE3AE;color:#7a5200;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:700}
 .mv-scr .mbar{height:8px;border-radius:99px;background:#dde7e2;overflow:hidden}.mv-scr .mbar i{display:block;height:100%;background:#0E6B5C}
 .mv-scr .mcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -124,6 +124,7 @@ details.mv-q p{padding:0 18px 16px;color:#cfe3dc}
 .mv-calc .res .g strong{color:var(--amb2)}
 .mv-fin{padding:56px 0 8px}
 .mv-fin .btn{margin-top:6px}
+@media(max-width:600px){.mv-tw{overflow-x:visible}.mv table{min-width:0;font-size:14px}.mv th{font-size:12.5px;padding:10px 8px}.mv td{padding:10px 8px;overflow-wrap:anywhere}}
 @media(min-width:900px){.mv-paso{grid-template-columns:minmax(0,1fr) 260px;align-items:center;padding:26px 28px}.mv-pasos li:nth-child(even) .mv-phone{order:-1}.mv-pasos li:nth-child(even).mv-paso{grid-template-columns:260px minmax(0,1fr)}}
 @media print{
  :root{color-scheme:light}body{background:#fff!important;color:#111!important;font-size:12pt}
@@ -144,17 +145,17 @@ function mock(clave, v, t) {
     folio: ["Pantalla Vender un display, con el botón para escanear el QR y el campo del folio",
       `<div class="mt">Vender un display</div><div class="ms">Acerca tu celular al display para empezar.</div><div class="mb">Escanear el QR del display</div><div class="ms" style="margin-top:6px">¿Prefieres escribir el folio?</div><div class="mi">X4W3<small>Son 4 caracteres y abre solo.</small></div>`],
     negocio: ["Pantalla de búsqueda del negocio en Google Maps",
-      `<div class="mt">¿Cuál es su negocio?</div><div class="ms">Escribe el nombre como aparece en Google Maps.</div><div class="mi">Tacos La Esquina</div><div class="mr on">Tacos La Esquina<small>Av. Patria 1234, Zapopan</small></div><div class="mr">Tacos La Esquina Centro<small>Calle Hidalgo 45, Guadalajara</small></div><div class="mb s">¿Ya es cliente? Búscalo</div>`],
+      `<div class="mt">¿Cuál es su negocio?</div><div class="ms">Escribe el nombre como aparece en Google Maps.</div><div class="mi">Tacos La Esquina</div><div class="mrw on">Tacos La Esquina<small>Av. Patria 1234, Zapopan</small></div><div class="mrw">Tacos La Esquina Centro<small>Calle Hidalgo 45, Guadalajara</small></div><div class="mb s">¿Ya es cliente? Búscalo</div>`],
     confirmar: ["Pantalla para confirmar el negocio con nombre y dirección",
-      `<div class="mt">¿Es este?</div><div class="ms">Confirma con el cliente: nombre y dirección.</div><div class="mr on"><b>Tacos La Esquina</b><small>Av. Patria 1234, Zapopan</small></div><div class="mb a">Probar el display ahora</div><div class="mb s">No es este: buscar otro</div>`],
+      `<div class="mt">¿Es este?</div><div class="ms">Confirma con el cliente: nombre y dirección.</div><div class="mrw on"><b>Tacos La Esquina</b><small>Av. Patria 1234, Zapopan</small></div><div class="mb a">Probar el display ahora</div><div class="mb s">No es este: buscar otro</div>`],
     prueba: ["Pantalla del modo prueba con el tiempo restante",
-      `<span class="mchip">Modo prueba</span><div class="mt">Tacos La Esquina</div><div class="mr"><small>Tiempo de prueba</small><b style="font:800 20px/1.2 var(--fd)">Quedan ${min} min</b><div class="mbar"><i style="width:${pct}%"></i></div></div><div class="mb a">Seguir con la venta</div><div class="mb s">Terminar la prueba</div>`],
+      `<span class="mchip">Modo prueba</span><div class="mt">Tacos La Esquina</div><div class="mrw"><small>Tiempo de prueba</small><b style="font:800 20px/1.2 var(--fd)">Quedan ${min} min</b><div class="mbar"><i style="width:${pct}%"></i></div></div><div class="mb a">Seguir con la venta</div><div class="mb s">Terminar la prueba</div>`],
     datos: ["Pantalla de datos del cliente con la casilla de resúmenes",
       `<div class="mt">Datos del cliente</div><div class="mi">Rosa Ruiz<small>Nombre</small></div><div class="mi">33 1234 5678<small>WhatsApp, 10 dígitos</small></div><div class="mi">rosa@correo.com<small>Correo (opcional)</small></div>${mck("Acepta recibir un resumen por WhatsApp cada 15 días durante tres meses", true)}<div class="mb a">Siguiente: cobrar ${esc(t.precio)}</div>`],
     cobro: ["Pantalla de cobro con precio, comisión y forma de pago",
-      `<div class="mt">Cobra antes de activar</div><div class="mr"><b style="font:800 22px/1 var(--fd)">${esc(t.precio)}</b> <small style="display:inline">IVA incluido</small></div><div class="mcols"><div><b>${esc(t.comision)}</b>Tu comisión</div><div><b>${esc(t.entrega)}</b>Entregas</div></div><div class="mcols"><div class="mr on" style="padding:6px">Efectivo</div><div style="padding:6px">Transferencia</div></div>${mck("Confirmo que cobré y me comprometo a entregar a Bien Visto", true)}<div class="mb a">Activar display X4W3</div>`],
+      `<div class="mt">Cobra antes de activar</div><div class="mrw"><b style="font:800 22px/1 var(--fd)">${esc(t.precio)}</b> <small style="display:inline">IVA incluido</small></div><div class="mcols"><div><b>${esc(t.comision)}</b>Tu comisión</div><div><b>${esc(t.entrega)}</b>Entregas</div></div><div class="mcols"><div class="mrw on" style="padding:6px">Efectivo</div><div style="padding:6px">Transferencia</div></div>${mck("Confirmo que cobré y me comprometo a entregar a Bien Visto", true)}<div class="mb a">Activar display X4W3</div>`],
     listo: ["Pantalla final con el display activo, factura y recibo",
-      `<div class="ok">✓</div><div class="mt" style="text-align:center">Display X4W3 activo</div><div class="mr"><b>Recibo de compra</b><small>Se le enviará por correo</small></div><div class="mr"><b>¿El cliente quiere factura?</b><small>Pregúntaselo ahora</small></div><div class="mb s">Abrir enlace de reseña</div><div class="mb">Activar otro display de este cliente</div>`],
+      `<div class="ok">✓</div><div class="mt" style="text-align:center">Display X4W3 activo</div><div class="mrw"><b>Recibo de compra</b><small>Se le enviará por correo</small></div><div class="mrw"><b>¿El cliente quiere factura?</b><small>Pregúntaselo ahora</small></div><div class="mb s">Abrir enlace de reseña</div><div class="mb">Activar otro display de este cliente</div>`],
   };
   const p = pantallas[clave];
   if (!p) return "";
