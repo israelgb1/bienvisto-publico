@@ -18,7 +18,7 @@ export function contenido(v, t) {
   // Tabla de importes: una venta suelta, la promoción y dos promociones.
   const importes = {
     t: "tabla",
-    cols: ["Venta", "El cliente paga", "Tú retienes", "Entregas a Bien Visto"],
+    cols: ["Venta", "El cliente paga", "Tu comisión", "Entregas a Bien Visto"],
     w: [2.2, 1.5, 1.3, 1.7],
     rows: [
       ["1 display", t.precio, t.comision, t.entrega],
@@ -304,7 +304,7 @@ export function contenido(v, t) {
           ["Precio de un display (IVA incluido)", t.precio],
           ["Tu comisión por display", t.comision],
           ["Entregas por display", t.entrega],
-          [`Promoción: ${N} displays`, `${t.promo_precio} (tú retienes ${t.promo_comision}, entregas ${t.promo_entrega})`],
+          [`Promoción: ${N} displays`, `${t.promo_precio} (tu comisión: ${t.promo_comision}, entregas ${t.promo_entrega})`],
           ["Prueba antes de pagar", `Hasta ${t.prueba} minutos, máximo 2 displays a la vez`],
           ["Tu tope por entregar", `${t.tope_confianza} o ${t.horas} horas (nuevo: ${t.tope_nuevo})`],
           ["Reposiciones directas al mes (nivel de Confianza)", t.lim_rep],
