@@ -1,5 +1,7 @@
 // Pinta el manual del vendedor como HTML para /ayuda/manual. Usa el contenido de ayuda-contenido.js.
 import { FRASE_CASILLA } from "./ayuda-contenido.js";
+import { indiceManual, BUSCADOR_CSS, BUSCADOR_JS, buscadorHtml } from "./ayuda-buscador.js";
+let nFaq = 0;
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const md = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
@@ -35,7 +37,7 @@ const CSS = `
 .mv-hero{padding:56px 0 28px}
 .mv-hero h1{font-size:clamp(36px,6vw,64px);max-width:16ch}
 .mv-hero .lede{margin-top:14px}
-.mv-acc{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.mv-acc{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;align-items:flex-start}
 .mv-acc .btn{min-height:48px}
 .mv-vig{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:15px;color:var(--mut)}
 .mv-vig::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--mint)}
@@ -182,11 +184,11 @@ function bloque(b, v, t) {
     case "aviso": return `<div class="mv-av ${b.tipo}"><b class="t">${esc(b.titulo)}</b><p>${mdg(b.x)}</p></div>`;
     case "flujo": return `<div class="mv-flujo"><b class="t">${esc(b.titulo)}</b><ol>${b.pasos.map((p) => `<li><span>${esc(p)}</span></li>`).join("")}</ol></div>`;
     case "check": return `<ul class="mv-chk">${b.items.map((i, k) => `<li><label><input type="checkbox" data-k="${k}"><span>${md(i)}</span></label></li>`).join("")}</ul>`;
-    case "faq": return b.items.map(([q, a]) => `<details class="mv-q"><summary>${esc(q)}</summary><p>${mdg(a)}</p></details>`).join("");
+    case "faq": return b.items.map(([q, a]) => `<details class="mv-q" id="faq-${nFaq++}"><summary>${esc(q)}</summary><p>${mdg(a)}</p></details>`).join("");
     case "glosario": return `<dl class="mv-gl">${b.items.map(([k, d]) => `<div><dt>${esc(k)}</dt><dd>${md(d)}</dd></div>`).join("")}</dl>`;
     case "calc": return calc(v, t);
     case "pasos":
-      return `<ol class="mv-pasos">${b.items.map((p, i) => `<li class="mv-paso"><div class="tx"><h3><i>${i + 1}</i>${esc(p.titulo)}</h3><p>${mdg(p.x)}</p>${p.nota ? `<p class="nota">${mdg(p.nota)}</p>` : ""}${p.dile ? `<div class="mv-dile"><b>DILE AL CLIENTE</b>${md(p.dile)}</div>` : ""}</div>${mock(p.mock, v, t)}</li>`).join("")}</ol>`;
+      return `<ol class="mv-pasos">${b.items.map((p, i) => `<li class="mv-paso" id="paso-${i + 1}"><div class="tx"><h3><i>${i + 1}</i>${esc(p.titulo)}</h3><p>${mdg(p.x)}</p>${p.nota ? `<p class="nota">${mdg(p.nota)}</p>` : ""}${p.dile ? `<div class="mv-dile"><b>DILE AL CLIENTE</b>${md(p.dile)}</div>` : ""}</div>${mock(p.mock, v, t)}</li>`).join("")}</ol>`;
     default: return "";
   }
 }
@@ -205,10 +207,13 @@ var links=[].slice.call(document.querySelectorAll(".mv-toc a"));
 if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.removeAttribute("aria-current")});var a=document.querySelector('.mv-toc a[href="#'+e.target.id+'"]');if(a){a.setAttribute("aria-current","true");var box=a.parentNode.parentNode;box.scrollTo({left:a.offsetLeft-20,behavior:"smooth"})}}})},{rootMargin:"-30% 0px -60% 0px"});document.querySelectorAll(".mv-sec").forEach(function(s){io.observe(s)})}
 })();`;
 
+const WA = "https://wa.me/522201435851";
+
 export function htmlManual(secciones, meta, v, t) {
+  nFaq = 0;
   const toc = secciones.map((s) => `<li><a href="#${s.id}">${esc(s.titulo)}</a></li>`).join("");
   glInit(secciones);
   const cuerpo = secciones.map((s) => { usados = new Set(); return `<section class="mv-sec" id="${s.id}"><h2>${esc(s.titulo)}</h2>${s.intro ? `<p class="intro">${esc(s.intro)}</p>` : ""}<div class="mv-b">${s.bloques.map((b) => bloque(b, v, t)).join("")}</div></section>`; }).join("");
   const script = SCRIPT.replace("__P__", v.precio_display).replace("__C__", v.comision_display).replace("__N__", Math.max(1, v.promo_n)).replace("__PP__", v.promo_precio);
-  return `<style>${CSS}</style><div class="mv"><section class="mv-hero"><div class="in"><p class="crumb"><a href="/vendedores">Vendedores</a> / Manual</p><h1>Manual del vendedor</h1><p class="lede">Cómo vender, cobrar y entregar con Bien Visto, paso a paso y con los importes de hoy.</p><div class="mv-acc"><a class="btn" href="/ayuda/manual.pdf" download="Manual-del-vendedor-Bien-Visto.pdf">Descargar PDF</a><a class="btn gh" href="https://wa.me/522201435851?text=${encodeURIComponent("Hola, soy vendedor de Bien Visto y necesito ayuda con mi panel.")}" target="_blank" rel="noopener">Escribir a soporte</a></div><p class="mv-vig">Importes vigentes al ${esc(meta.fecha.replace(/\.$/, ""))}. Se actualizan solos.</p>${meta.vivo ? "" : `<p class="mv-warn"><strong>No pudimos leer los importes actuales.</strong> Los que ves son de respaldo y pueden no ser los vigentes. Confirma el precio y tu comisión en la app.</p>`}</div></section><nav class="mv-toc" aria-label="Secciones del manual"><ul>${toc}</ul></nav><div class="in">${cuerpo}</div></div><script>${script}</script>`;
+  return `<style>${CSS}${BUSCADOR_CSS}</style><div class="mv"><section class="mv-hero"><div class="in"><p class="crumb"><a href="/vendedores">Vendedores</a> / Manual</p><h1>Manual del vendedor</h1><p class="lede">Cómo vender, cobrar y entregar con Bien Visto, paso a paso y con los importes de hoy.</p><div class="mv-acc"><a class="btn" href="/ayuda/manual.pdf" download="Manual-del-vendedor-Bien-Visto.pdf">Descargar PDF</a>${buscadorHtml(WA)}</div><p class="mv-vig">Importes vigentes al ${esc(meta.fecha.replace(/\.$/, ""))}. Se actualizan solos.</p>${meta.vivo ? "" : `<p class="mv-warn"><strong>No pudimos leer los importes actuales.</strong> Los que ves son de respaldo y pueden no ser los vigentes. Confirma el precio y tu comisión en la app.</p>`}</div></section><nav class="mv-toc" aria-label="Secciones del manual"><ul>${toc}</ul></nav><div class="in">${cuerpo}</div></div><script>${script}</script><script>${BUSCADOR_JS.replace("__IDX__", () => JSON.stringify(indiceManual(secciones)).replace(/</g, "\\u003c").replace(/\u2028|\u2029/g, " "))}</script>`;
 }
