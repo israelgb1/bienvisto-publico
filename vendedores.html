@@ -376,7 +376,7 @@ datos:function(){var f=S.form;return prog(2)+'<h2>Tus datos</h2><p class="lead">
  '<form id="frm" novalidate style="display:grid;gap:16px">'+
  field('f_nombre','Nombre completo','text',f.nombre,'Como aparece en tu identificación.')+
  field('f_wa','WhatsApp','tel',f.wa,'10 dígitos. Por aquí te avisamos si te aprueban.','tel')+
- field('f_mail','Tu correo','email',f.mail,'A este correo te llega el código para entrar al panel.','email')+
+ field('f_mail','Tu correo','email',f.mail,'Si es una cuenta de Google, entras con Google; si no, te llega un código a este correo.','email')+
  field('f_zona','Ciudad o zona donde venderías','text',f.zona,'','')+
  field('f_inv','¿Quién te invitó? (opcional)','text',f.inv,'Escribe su nombre o su código.','')+
  '<div class="fld"><label class="chk" for="f_ok"><input id="f_ok" type="checkbox" '+(f.ok?'checked ':'')+'aria-describedby="f_ok-e"><span>Acepto el <a href="/privacidad" target="_blank" rel="noopener">aviso de privacidad</a> y los <a href="/terminos-vendedores" target="_blank" rel="noopener">términos para vendedores</a>.</span></label><div id="f_ok-e">'+(S.err.f_ok?'<p class="err">'+ERR+'<span>'+esc(S.err.f_ok)+'</span></p>':'')+'</div></div>'+
@@ -384,7 +384,7 @@ datos:function(){var f=S.form;return prog(2)+'<h2>Tus datos</h2><p class="lead">
 
 enviada:function(){var r=S.cur;return prog(3)+(r.est==='aprobada'?'<h2>Tu solicitud fue aprobada</h2><p class="lead">Ya puedes entrar con <b>'+esc(r.mail)+'</b>. La primera vez te pedimos tu cuenta de cobro.</p>':r.est==='rechazada'?'<h2>No pudimos aprobar tu solicitud</h2><p class="lead">Por ahora no tenemos lugar para ti. Si quieres saber por qué, escríbenos por WhatsApp.</p>':'<h2>Recibimos tu solicitud</h2><p class="lead">Te avisamos por WhatsApp al <b>'+esc(r.wa)+'</b> en máximo 24 horas hábiles.</p>')+
  tracker(r)+
- (r.est==='aprobada'?'<a class="btn p" href='+"'"+PORTADA_URL+"'"+' target="_blank" rel="noopener">Entrar ahora</a>':'<p class="lead" style="font-size:14.5px">Cuando te aprueben, toca «Entrar» y escribe tu correo: te llega un código para entrar.</p>')+
+ (r.est==='aprobada'?'<a class="btn p" href='+"'"+PORTADA_URL+"'"+' target="_blank" rel="noopener">Entrar ahora</a>':'<p class="lead" style="font-size:14.5px">Cuando te aprueben, toca «Entrar» y elige «Continuar con Google» o escribe tu correo para recibir un código.</p>')+
   '<button class="link" data-go="door" style="justify-self:start">Volver al inicio</button>'}
 };
 
