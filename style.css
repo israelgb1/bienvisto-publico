@@ -1029,3 +1029,14 @@ p{margin:0;max-width:60ch;text-wrap:pretty}
 .legal h2{margin-top:18px;font-size:clamp(22px,2.6vw,26px)}
 .legal ul{padding-left:22px;display:grid;gap:8px}
 .legal p,.legal ul{margin:0}
+.legal h3{margin-top:10px;font-size:20px}
+.legal h2,.legal h3{scroll-margin-top:90px}
+.legal-res{display:grid;gap:10px;padding:18px 20px;border:1px solid var(--bd);border-radius:18px;background:var(--sf)}
+.legal-res h2,.legal-res h3{margin:0}
+.legal-res ul{padding-left:22px;display:grid;gap:6px}
+.legal-tabla{overflow-x:auto;border:1px solid var(--bd);border-radius:14px}
+.legal-tabla table{border-collapse:collapse;width:100%;min-width:480px;font-size:16px}
+.legal-tabla th,.legal-tabla td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
+.legal-tabla th{background:rgba(14,107,92,.1);color:inherit}
+.legal-tabla tr:last-child td{border-bottom:0}
+.legal-tabla .num{white-space:nowrap;font-variant-numeric:tabular-nums}
