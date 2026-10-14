@@ -75,9 +75,31 @@ export function llenar(html, t) {
   return html.replace(/\{\{([a-z_]+)\}\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(t, k) ? t[k] : m));
 }
 
+// Enlace corto del pie del display: bienvisto.com.mx/quiero lleva al inicio y marca el origen con UTM
+// para que cualquier herramienta de analítica sepa que la visita vino del display impreso.
+function redirigirQuiero(request, url) {
+  const destino = new URL("/", url.origin);
+  const conUtm = [...url.searchParams.keys()].some((k) => k.startsWith("utm_"));
+  if (conUtm) {
+    for (const [k, v] of url.searchParams) destino.searchParams.set(k, v);
+  } else {
+    destino.searchParams.set("utm_source", "display");
+    destino.searchParams.set("utm_medium", "impreso");
+    destino.searchParams.set("utm_campaign", "quiero");
+  }
+  console.log("visita /quiero " + (request.headers.get("CF-IPCountry") || "-"));
+  return new Response(null, {
+    status: 302,
+    headers: { Location: destino.toString(), "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (/^\/quiero\/?$/i.test(url.pathname) && (request.method === "GET" || request.method === "HEAD")) {
+      return redirigirQuiero(request, url);
+    }
     if (url.pathname.startsWith("/ayuda/manual")) {
       const { valores, vivo } = await leerValoresEstado(env);
       const r = await responderAyuda(request, env, url, { valores, vivo, textos });
